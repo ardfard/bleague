@@ -6,10 +6,10 @@ import           BLeague.Types
 import           Data.Maybe         (fromMaybe)
 import           Data.Text          (pack)
 import           Network.URI
-import           Control.Monad.Trans.Either (runEitherT)
+import           Control.Monad.Except (runExceptT)
 import           System.Environment
 import           Version
-import           BLeague.Models 
+import           BLeague.Api
 import           Servant (ServantErr)
 
 readEnv :: Read a => String -> a -> IO a
@@ -49,11 +49,10 @@ main :: IO ()
 main = do
   putStrLn "Server started"
   config <- initConfig
-  -- runApi config
-  return ()
+  runApi config
 
 runAction :: AppConfig -> App a -> IO (Either ServantErr a)
-runAction  conf action = runEitherT $ runApp conf action
+runAction  conf action = runExceptT $ runApp conf action
 
 initConfig :: IO AppConfig
 initConfig = do

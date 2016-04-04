@@ -28,7 +28,9 @@ executable bleague
                      , resource-pool
                      , rethinkdb
                      , safe
-                     , servant-server
+                     , servant >= 0.5
+                     , servant-docs
+                     , servant-server >= 0.5
                      , text
                      , time
                      , transformers

@@ -1,7 +1,7 @@
 {-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-module BLeague.Models where
+module BLeague.Models.User where
 
 import           Data.Aeson                 (FromJSON, ToJSON (..), Value (..),
                                              toJSON)
@@ -13,6 +13,7 @@ import           Data.Pool
 import           Data.Text                  (Text, unpack)
 import           Data.Time
 import           Prelude                    hiding (id)
+import           Safe (headMay)
 
 import           BLeague.Crud
 import           BLeague.Types
@@ -41,62 +42,38 @@ instance ToJSON User
 instance FromDatum User
 instance ToDatum User
 
-data Fixture = Fixture
-  { dateTime :: UTCTime
-  , home     :: User
-  , away     :: User
-  } deriving (Show, Eq, Generic)
-
-instance FromJSON Fixture
-instance ToJSON Fixture
-
-type Team = Text
-
-data League = League
-  { title       :: Text
-  , description :: Text
-  , standings   :: M.Map User Standing
-  } deriving (Show, Eq, Generic)
-
-type TeamMember = Text
-
-data Standing = Standing
-  { team        :: Team
-  , win         :: Int
-  , draw        :: Int
-  , lose        :: Int
-  , goalFor     :: Int
-  , goalAgainst :: Int
-  , scorers     :: M.Map TeamMember Int
-  , savers      :: M.Map TeamMember Int
-  } deriving (Show, Eq, Generic)
-
-instance FromJSON Standing
-instance ToJSON Standing
-
 userTable = R.table "users"
 
 listUser :: App [User]
 listUser = runDb $ userTable # orderBy [asc "id"]
 
-findUser :: Text -> App (Maybe User)
-findUser id = runDb $ userTable # get (expr id)
+find :: Text -> App (Maybe User)
+find id = runDb $ userTable # get (expr id)
 
-saveUser :: Text -> User -> App ()
-saveUser = docsSave userTable
+findByUsername :: Text -> App (Maybe User)
+findByUsername u = do
+  us <- runDb $ userTable # getAll usernameIndex [expr u]
+  return $ headMay us
 
-removeUser :: Text -> App ()
-removeUser id = runDb $ userTable # get (expr id) # delete
+save :: Text -> User -> App ()
+save = docsSave userTable
+
+remove :: Text -> App ()
+remove id = runDb $ userTable # get (expr id) # delete
 
 secure :: (Functor m) => m User -> m SecureUser
 secure = fmap SecureUser
 
-insertUser :: User -> App User
-insertUser u = do
+insert :: User -> App User
+insert u = do
   r <- runDb $ userTable # create u
   let user = u { id = generatedKey r}
   return user
 
-init :: App ()
-init = initDb $ runDb $ tableCreate userTable
+usernameIndexName = "username"
+usernameIndex = Index usernameIndexName
 
+init :: App ()
+init = do
+  initDb $ runDb $ tableCreate userTable
+  initDb $ runDb $ userTable # indexCreate usernameIndexName (!expr usernameIndexName)

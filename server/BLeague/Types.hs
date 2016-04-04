@@ -38,11 +38,8 @@ newtype App a = App {
   unApp :: ReaderT AppConfig (ExceptT ServantErr IO) a
 } deriving (Monad, Functor, Applicative, MonadReader AppConfig, MonadError ServantErr, MonadIO)
 
-runApp :: AppConfig -> App a -> EitherT ServantErr IO a
-runApp config action = do
-    res <- liftIO $ runExceptT $ runReaderT (unApp action) config
-    EitherT $ return res
-
+runApp :: AppConfig -> App a -> ExceptT ServantErr IO a
+runApp config action = runReaderT (unApp action) config
 
 --------------------------------------------------------
 
