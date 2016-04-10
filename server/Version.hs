@@ -1,4 +1,7 @@
+{-# LANGUAGE OverloadedStrings #-}
 module Version where
 
-generatedVersion :: String
+import           MyPrelude
+
+generatedVersion :: Text
 generatedVersion = "ERROR"

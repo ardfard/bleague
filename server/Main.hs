@@ -1,13 +1,13 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
+import           MyPrelude
+
 import           BLeague.Crud       (connectDbPool)
 import           BLeague.Types
-import           Data.Maybe         (fromMaybe)
-import           Data.Text          (pack)
 import           Network.URI
-import           Control.Monad.Except (runExceptT)
-import           System.Environment
+import           System.Environment (lookupEnv)
+import           Prelude (String, read)
 import           Version
 import           BLeague.Api
 import           Servant (ServantErr)
@@ -27,9 +27,9 @@ readAllEnv = do
   port <- readEnv "PORT" 3001
   environment <- readEnv "ENV" Dev
   endpoint <- defEnv "ENDPOINT" "http://localhost:3001"
-  db <- lookupDb
+  (h,p) <- lookupDb
   s <- defEnv "AUTH_SECRET" "not_a_secret"
-  return $ Env port db (pack endpoint) environment (pack s)
+  return $ Env port (toS h, p) (toS endpoint) environment (toS s)
 
 lookupDb :: IO (String, Integer)
 lookupDb = do
@@ -47,7 +47,7 @@ readEndpoint u = do
 
 main :: IO ()
 main = do
-  putStrLn "Server started"
+  putText "Server started"
   config <- initConfig
   runApi config
 
@@ -59,4 +59,4 @@ initConfig = do
   env <- readAllEnv
   print env
   p <- connectDbPool (envDb env)
-  return $ AppConfig "bleague" (pack generatedVersion) env p
+  return $ AppConfig "bleague" generatedVersion env p

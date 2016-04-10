@@ -3,19 +3,19 @@
 
 module BLeague.Models.Session (newSession, validSessionCookie, clearSessionCookie, init) where
 
+import           MyPrelude hiding (get)
+
 import           BLeague.Crud
 import           BLeague.Models.User        (User )
 import qualified BLeague.Models.User as U
 import           BLeague.Types
 import           Data.Aeson
-import           Data.Text                  (Text)
 import qualified Data.Text                  as T
 import qualified Database.RethinkDB         as R
 import           Database.RethinkDB.NoClash hiding (Change, Null, Object, group,
                                              status, table, toJSON)
 import           GHC.Generics
-import Data.Monoid ((<>))
-import            Prelude hiding (init)
+
 data Session = Session
   { id   :: Text
   , userId :: Text

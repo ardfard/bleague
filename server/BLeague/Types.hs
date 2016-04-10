@@ -7,21 +7,11 @@
 
 module BLeague.Types where
 
-import           Control.Applicative
-import           Control.Monad.Except
-import           Control.Monad.IO.Class     (liftIO)
-import           Control.Monad.Reader
-import           Control.Monad.Trans.Either
+import           MyPrelude
 
 import           Data.Aeson                 (ToJSON)
-import qualified Data.ByteString.Lazy.Char8 as BL
-import           Data.Monoid
 import           Data.Pool                  (Pool)
-import           Data.Text                  (Text, unpack)
-import qualified Data.Text.Lazy             as TL
-import qualified Data.Text.Lazy.Encoding    as TLE
 import           Database.RethinkDB         (RethinkDBHandle)
-import qualified Database.RethinkDB         as RethinkDB
 
 import           GHC.Generics
 
@@ -50,7 +40,7 @@ instance ToJSON AppEnvironment
 
 data Env = Env {
   port        :: Int,
-  envDb       :: (String, Integer),
+  envDb       :: (Text, Integer),
   -- mandrill :: Text,
   endpoint    :: Endpoint,
   environment :: AppEnvironment,

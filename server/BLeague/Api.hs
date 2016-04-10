@@ -6,18 +6,10 @@
 {-# LANGUAGE TypeOperators     #-}
 
 module BLeague.Api where
-
-import           Control.Applicative
-import           Control.Monad.Except
-import           Control.Monad.IO.Class            (liftIO)
-import           Control.Monad.Reader
-import           Control.Monad.Trans.Either
+import           MyPrelude 
 
 import           Data.Aeson
-import           Data.ByteString                   (ByteString)
 import           Data.HashMap.Strict               (HashMap)
-import           Data.Maybe                        (fromJust)
-import           Data.Monoid
 import           Data.Pool
 import           Data.Proxy
 import           Data.Text                         (Text, pack, toUpper, unpack)
@@ -38,7 +30,6 @@ import           Servant
 
 import           BLeague.Auth
 import           BLeague.Crud
-import qualified BLeague.Models.Session            as Session
 import qualified BLeague.Models.User               as User
 import           BLeague.Types
 
@@ -49,7 +40,7 @@ data UserSignup = UserSignup
   } deriving (Show, Eq)
 
 type UsersAPI =
-  Capture "id" Text :> Get '[JSON] User.SecureUser
+   "detail" :> Get '[JSON] User.SecureUser
 
 checkNotFound :: App (Maybe a) -> App a
 checkNotFound action = do
@@ -60,12 +51,12 @@ checkNotFound action = do
 
 type MainAPI =
        AuthAPI
-  :<|> AuthProtected :> "users" :> UsersAPI
+  :<|> BasicAuth "bleague-realm" User.User :>  "users" :> UsersAPI
 
 apiServer :: ServerT MainAPI App
 apiServer = authServer :<|> userGet
   where
-    userGet id = checkNotFound $ User.secure <$> User.findByUsername id
+    userGet _user = User.secure . return $ _user
 
 server :: AppConfig -> Server MainAPI
 server config = enter (Nat $ runApp config) apiServer
@@ -99,9 +90,8 @@ runApi config = do
   _ <- runExceptT $ runApp config $ do
     createDb
     User.init
-    Session.init
-  putStrLn "Starting..."
-  let context = config :. EmptyContext
+  putText "Starting..."
+  let context = authCheck config  :. EmptyContext
   run p $ stack $ serveWithContext api context (rootServer config)
 
 -- Cors ---------------------------------------------------

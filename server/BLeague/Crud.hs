@@ -4,18 +4,12 @@
 
 module BLeague.Crud where
 
-import           Control.Applicative
+import           MyPrelude hiding (get)
+
 import qualified Data.HashMap.Strict        as HM
-import           Data.Maybe                 (fromMaybe)
-import           Data.Monoid                ((<>))
 import           Data.Pool
-import           Data.Text                  (Text, unpack)
 import           Database.RethinkDB.Datum   (resultToMaybe)
 import           Database.RethinkDB.NoClash
-import           Safe                       (headMay)
-
-import           Control.Monad.Reader
-import           Control.Monad.Trans        (liftIO)
 
 import           BLeague.Types
 
@@ -25,7 +19,7 @@ datumToValue a = case a of
   Nothing -> Nothing
 
 generatedKey :: WriteResponse -> Text
-generatedKey = head . fromMaybe [""] . writeResponseGeneratedKeys
+generatedKey = fromMaybe "" . head . fromMaybe [""] . writeResponseGeneratedKeys
 
 writeChangeHead :: WriteResponse -> Maybe Change
 writeChangeHead rs = writeResponseChanges rs >>= headMay
@@ -68,7 +62,7 @@ runDb q = do
 initDb :: App (Either RethinkDBError Datum) -> App ()
 initDb action = do
   r <- action
-  liftIO $ putStrLn $ "[INIT] " <> case r of
+  print $ "[INIT] " <> case r of
     Left err -> errorMessage err
     Right d -> show d
 
@@ -76,14 +70,14 @@ initDb action = do
 runPool :: (Expr query, Result r) => Pool RethinkDBHandle -> query -> IO r
 runPool p q = withResource p $ \h -> run h q
 
-connectDb :: (String,Integer) -> IO RethinkDBHandle
-connectDb (host,port) = use bleagueDb <$> connect host port Nothing
+connectDb :: (Text,Integer) -> IO RethinkDBHandle
+connectDb (host_,port_) = use bleagueDb <$> connect (toS host_) port_ Nothing
 
 disconnectDb :: RethinkDBHandle -> IO ()
 disconnectDb  = close
 
-connectDbPool :: (String, Integer) -> IO (Pool RethinkDBHandle)
-connectDbPool hp = createPool (connectDb hp) disconnectDb 1 10 5
+connectDbPool :: (Text, Integer) -> IO (Pool RethinkDBHandle)
+connectDbPool (h, p) = createPool (connectDb (toS h, p)) disconnectDb 1 10 5
 
 
 createDb :: App ()
@@ -96,19 +90,19 @@ bleagueDbName :: Text
 bleagueDbName = "bleague"
 
 docsList :: FromDatum a => Table -> App [a]
-docsList table = runDb $ table # orderBy [asc "id"]
+docsList t = runDb $ t # orderBy [asc "id"]
 
 docsFind :: FromDatum a => Table -> Text -> App (Maybe a)
-docsFind table id = runDb $ table # get (expr id)
+docsFind t id = runDb $ t # get (expr id)
 
 docsInsert :: ToDatum a => Table -> a -> App Text
-docsInsert table s = do
-    r <- runDb $ table # create s
+docsInsert t s = do
+    r <- runDb $ t # create s
     return $ generatedKey r
 
 docsSave :: ToDatum a => Table -> Text -> a -> App ()
-docsSave table id s = runDb $ table # get (expr id) # replace (const (toDatum s))
+docsSave t id s = runDb $ t # get (expr id) # replace (const (toDatum s))
 
 docsRemove :: Table -> Text -> App ()
-docsRemove table id = runDb $ table # get (expr id) # delete
+docsRemove t id = runDb $ t # get (expr id) # delete
 

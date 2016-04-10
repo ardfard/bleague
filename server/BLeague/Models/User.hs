@@ -3,6 +3,7 @@
 
 module BLeague.Models.User where
 
+import           MyPrelude hiding (get, getAll)
 import           Data.Aeson                 (FromJSON, ToJSON (..), Value (..),
                                              toJSON)
 import           Data.HashMap.Strict        (HashMap)

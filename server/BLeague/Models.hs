@@ -22,33 +22,6 @@ import           Database.RethinkDB.NoClash hiding (Change, Null, Object, group,
 import           GHC.Generics
 
 --------------------------- User API -----------------------------
-data User = User
-  { id             :: Text
-  , username       :: Text
-  , hashedPassword :: Text
-  , admin          :: Bool
-  , created        :: UTCTime
-  } deriving (Show, Eq, Generic)
-
-newtype SecureUser = SecureUser User deriving (Show, Generic)
-
-instance ToJSON SecureUser where
-  toJSON (SecureUser user) = Object $ foldr HashMap.delete obj ["hashedPassword"]
-    where (Object obj) = toJSON user
-
-instance FromJSON User
-instance ToJSON User
-instance FromDatum User
-instance ToDatum User
-
-data Fixture = Fixture
-  { dateTime :: UTCTime
-  , home     :: User
-  , away     :: User
-  } deriving (Show, Eq, Generic)
-
-instance FromJSON Fixture
-instance ToJSON Fixture
 
 type Team = Text
 
