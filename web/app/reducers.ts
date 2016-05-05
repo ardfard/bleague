@@ -1,7 +1,7 @@
 /// <reference path="../typings/tsd.d.ts" />
 
 import { Reducer, combineReducers } from 'redux';
-import { ICounterAction, ACTION } from './actions';
+import { ICounterAction, ILoginAction, ACTION } from './actions';
 
 function counters(state: number[] = [0, 0, 0], action: ICounterAction): number[] {
   switch (action.type) {
@@ -27,4 +27,13 @@ function counters(state: number[] = [0, 0, 0], action: ICounterAction): number[]
   }
 }
 
-export const counterApp: Reducer = combineReducers({ counters });
+function token(state: string = "", action: ILoginAction): string {
+  switch (action.type) {
+    case ACTION.Login:
+      return action.user + action.password;
+    default:
+      return "";
+  }
+}
+
+export const app: Reducer = combineReducers({ counters, token });
