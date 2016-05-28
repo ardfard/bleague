@@ -9,7 +9,7 @@ import { CounterList } from './counter_list';
 import { browserHistory } from 'react-router';
 import * as Cookies from 'cookiejs';
 
-interface IAppState {
+export interface IAppState {
   counters: number[];
   token: string;
 }
@@ -26,7 +26,6 @@ function select(state: { counters: number[] , token: string }): IAppState {
     token: state.token
   };
 }
-
 
 @connect(select)
 export class App extends React.Component<IAppProps, {}> {

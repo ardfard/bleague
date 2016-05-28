@@ -2,32 +2,48 @@
 
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { login } from '../actions';
 
 interface ILoginProps {
-  tryAuthenticate: () => void;
+  tryAuthenticate: (username : string, password : string) => void
 }
 
-export class Login extends React.Component<ILoginProps, {}> {
-
-  login(e : Event) {
-    e.preventDefault();
-    this.props.tryAuthenticate()
+function dispatchToProps( dispatch : Function ) : ILoginProps {
+  return {
+    tryAuthenticate: (username, pass) => dispatch(login(username, pass))
   }
+}
 
-  public render(): React.ReactElement<{}> {
-    return ( <form role="form">
+@connect(null, dispatchToProps)
+export class Login extends React.Component<ILoginProps, {}> {
+  render() {
+    let username
+    let password
+    return (
+      <form role="form">
         <div className="form-group">
           <input
-           ref="username"
-           type="text"
-           placeholder="username"/>
+            ref= {node => {
+              username = node
+            }}
+            type="text"
+            placeholder="username"/>
           <input
-           ref="password"
-           type="password"
-           placeholder="password"/>
+            ref= {node => {
+              password = node
+            }}
+            type="password"
+            placeholder="password"/>
         </div>
-        <button type="submit" onClick={this.login.bind(this)}>Login</button>
-      </form>
+        <button
+          type="submit"
+          onClick={ ( e )=> {
+            e.preventDefault();
+            this.props.tryAuthenticate(username.value.trim(), password.value.trim());
+          }}>
+          Login
+        </button>
+     </form>
     );
   }
 }

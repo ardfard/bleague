@@ -4,17 +4,16 @@ export enum ACTION {
     IncrementCounter
   , DecrementCounter
   , AddCounter
-  , Login }
+  , LoginSuccess }
 
 export interface ICounterAction {
   type: ACTION;
   counterId?: number;
 }
 
-export interface ILoginAction {
+export interface ILoginSuccessAction {
   type: ACTION;
-  user: string;
-  password: string;
+  token: string;
 }
 
 export function incrementCounter(counterId: number): ICounterAction {
@@ -29,6 +28,18 @@ export function addCounter(): ICounterAction {
   return { type: ACTION.AddCounter };
 }
 
-export function login(user: string, password: string): ILoginAction {
-  return { type: ACTION.Login, password: password, user: user };
+
+export function login(user: string, password: string, redirect?: Function) : Function {
+  return (dispatch) => {
+    setTimeout(() => {
+      const token = `${user}:${password}`;
+      dispatch({
+        type: ACTION.LoginSuccess,
+        token: token
+      });
+
+      if(redirect) redirect();
+
+    }, 300)
+  }
 }

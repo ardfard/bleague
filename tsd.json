@@ -12,10 +12,16 @@
       "commit": "ba424f7ee39717d51c17699a09ac8df312a7e9a1"
     },
     "redux/redux.d.ts": {
-      "commit": "ba424f7ee39717d51c17699a09ac8df312a7e9a1"
+      "commit": "edb64e4a35896510ce02b93c0bca5ec3878db738"
     },
     "react/react.d.ts": {
       "commit": "ba424f7ee39717d51c17699a09ac8df312a7e9a1"
+    },
+    "redux-thunk/redux-thunk.d.ts": {
+      "commit": "edb64e4a35896510ce02b93c0bca5ec3878db738"
+    },
+    "redux-logger/redux-logger.d.ts": {
+      "commit": "edb64e4a35896510ce02b93c0bca5ec3878db738"
     }
   }
 }
