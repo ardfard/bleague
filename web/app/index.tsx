@@ -1,18 +1,17 @@
-/// <reference path="../typings/tsd.d.ts" />
 
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import { Store, createStore, applyMiddleware } from 'redux';
+import { Store, createStore, applyMiddleware, compose } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import * as createLogger from 'redux-logger';
 import { Provider } from 'react-redux';
-import { Router, Route, Link, browserHistory, RouterState, RedirectFunction } from 'react-router';
+import { Router, Route, Link, browserHistory } from 'react-router';
 
 import { App, IAppState } from './components/app';
 import { Login } from './components/login';
 import { app } from './reducers';
-import * as Cookies from 'cookiejs';
 import * as storage from './persistence/storage';
+import persistenceStore from './persistence/store';
 
 declare const require: (name: String) => any;
 
@@ -28,11 +27,12 @@ const initialState : IAppState = {
 }
 
 function configureStore(initialState : IAppState): Store {
-  const store: Store = createStore(
-    app,
-    applyMiddleware(
-      thunkMiddleware
-    ));
+  let finalCreateStore = compose(
+    applyMiddleware(thunkMiddleware),
+    persistenceStore
+  )(createStore)
+
+  const store: Store = finalCreateStore(app, initialState);
 
   if (module.hot) {
     module.hot.accept('./reducers', () => {
@@ -50,7 +50,7 @@ store.subscribe( () =>
   console.log(store.getState())
 )
 
-function requireAuth (nextState : RouterState, replaceState : RedirectFunction) {
+function requireAuth (nextState, replaceState ) {
   const state = store.getState();
   const isLoggedIn = Boolean(state.token);
   if (!isLoggedIn)

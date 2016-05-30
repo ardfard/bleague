@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "target": "ES6",
+    "jsx": "preserve",
+    "experimentalDecorators": true
+  },
+  "compileOnSave": false,
+  "exclude": ["node_modules", "web/config", "web/dev_server.js"]
+}

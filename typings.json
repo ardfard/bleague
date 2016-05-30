@@ -1,0 +1,17 @@
+{
+  "name": "bleague-web",
+  "path": "web/typings",
+  "bundle": "web/typings/tsd.d.ts",
+  "globalDependencies": {
+    "react": "github:DefinitelyTyped/DefinitelyTyped/react/react.d.ts#ba424f7ee39717d51c17699a09ac8df312a7e9a1",
+    "react-dom": "github:DefinitelyTyped/DefinitelyTyped/react/react-dom.d.ts#ba424f7ee39717d51c17699a09ac8df312a7e9a1",
+    "react-redux": "github:DefinitelyTyped/DefinitelyTyped/react-redux/react-redux.d.ts#ba424f7ee39717d51c17699a09ac8df312a7e9a1",
+    "redux": "github:DefinitelyTyped/DefinitelyTyped/redux/redux.d.ts#edb64e4a35896510ce02b93c0bca5ec3878db738",
+    "redux-logger": "github:DefinitelyTyped/DefinitelyTyped/redux-logger/redux-logger.d.ts#edb64e4a35896510ce02b93c0bca5ec3878db738",
+    "redux-thunk": "github:DefinitelyTyped/DefinitelyTyped/redux-thunk/redux-thunk.d.ts#edb64e4a35896510ce02b93c0bca5ec3878db738"
+  },
+  "dependencies": {
+    "ramda": "registry:npm/ramda#0.21.0+20160526170405",
+    "react-router": "registry:npm/react-router#2.0.0+20160214194820"
+  }
+}

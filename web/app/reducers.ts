@@ -1,4 +1,3 @@
-/// <reference path="../typings/tsd.d.ts" />
 
 import { Reducer, combineReducers } from 'redux';
 import { ICounterAction, ILoginSuccessAction, ACTION } from './actions';
