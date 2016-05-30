@@ -42,14 +42,25 @@ data SignUpResult = SignUpSuccess
 
 instance ToJSON SignUpResult
 
-type AuthAPI =  "newuser" :> ReqBody '[JSON] NewUserDetails :> Post '[JSON]  SignUpResult
+data LoginDetails = LoginDetails { username :: Text
+                                 , password :: Text
+                                 } deriving (Read, Show, Eq, Generic)
+instance FromJSON LoginDetails
+
+data LoginResult = LoginSuccess User.User
+                 | LoginFailure Text
+                   deriving (Show, Eq, Generic)
+
+instance ToJSON LoginResult
+
+type AuthAPI = "newuser" :> ReqBody '[JSON] NewUserDetails :> Post '[JSON]  SignUpResult
+          :<|> "login" :> ReqBody '[JSON] LoginDetails :> Post '[JSON] LoginResult
 
 authAPI :: Proxy AuthAPI
 authAPI = Proxy
 
 authServer :: ServerT AuthAPI App
-authServer =  newuser
-
+authServer =  newuser :<|> login
 
 -- instance ToSample Credentials where
 --   toSamples _ = [("Sample Credentials", (Credentials "testuser" "testpassword"))]
@@ -71,4 +82,11 @@ newuser (NewUserDetails u p) = do
   _ <-  User.insert user
   return SignUpSuccess
 
-
+login :: LoginDetails -> App LoginResult
+login (LoginDetails u pass) = do
+  muser <- User.findByUsername u
+  case muser of
+    Just user -> if User.hashedPassword user == pass
+                 then return $ LoginSuccess user
+                 else return $ LoginFailure "password mismatch"
+    Nothing -> return $ LoginFailure "user not found"
